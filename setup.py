@@ -7,7 +7,7 @@ with open("README.md", "r") as readme_file:
 
 setup_args = dict(
     entry_points = {
-        'console_scripts': ['image-cli=image_cli.command_line:main'],
+        'console_scripts': ['image-cli-convert=image_cli.command_line_convert:main'],
     },
     name='image-cli',
     version='0.0.0.1',
