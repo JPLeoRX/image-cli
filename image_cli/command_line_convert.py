@@ -28,6 +28,7 @@ def convert_file(source_folder_path: str, source_file_name: str, source_format: 
         if not os.path.exists(target_file_path):
             # Open image and save it in a new format
             image_pil = utils_image.open_image_pil(source_file_path)
+            image_pil = utils_image.clear_exif_data(image_pil)
             utils_image.save_image_pil(image_pil, target_file_path, quality=target_quality)
             print(Fore.GREEN + 'SUCCESS!' + Style.RESET_ALL + ' Converted image from "' + source_file_path + '" to "' + target_file_path + '"')
             return True
@@ -42,6 +43,7 @@ def convert_file(source_folder_path: str, source_file_name: str, source_format: 
 
                 # Open image and save it in a new format
                 image_pil = utils_image.open_image_pil(source_file_path)
+                image_pil = utils_image.clear_exif_data(image_pil)
                 utils_image.save_image_pil(image_pil, target_file_path, quality=target_quality)
                 print(Fore.GREEN + 'SUCCESS!' + Style.RESET_ALL + ' Converted image from "' + source_file_path + '" to "' + target_file_path + '"')
                 return True
@@ -65,27 +67,28 @@ def main():
     parser.add_argument('-o', metavar='o', type=str, nargs='?', choices=["y", "n", "Y", "N"], default="n", help='Y/N should we overwrite files (if they already exist), optional and defaults to N')
     parser.add_argument('-q', metavar='q', type=int, nargs='?', choices=list(range(0, 101)), default=100, help='converted image quality parameter, from 0 to 100, optional and defaults to 100, but common value for JPG is 90')
     args = parser.parse_args()
-    input_format_source = args.formatSource
-    input_format_target = args.formatTarget
-    input_quality = args.q
-    input_overwrite = str(args.o).lower().strip() == "y"
+    input_source_format = args.formatSource
+    input_target_format = args.formatTarget
+    input_target_quality = args.q
+    input_target_overwrite = str(args.o).lower().strip() == "y"
     cwd_path = os.getcwd()
-    print("number_of_cpu=" + str(number_of_cpu) + ", input_format_source=" + str(input_format_source) + ", input_format_target=" + str(input_format_target) + ", input_quality=" + str(input_quality) + ", input_overwrite=" + str(input_overwrite) + ", cwd_path=" + str(cwd_path))
-    print('Hello World!')
+    print(Fore.YELLOW + "INFO!" + Style.RESET_ALL + " number_of_cpu=" + str(number_of_cpu) + ", input_format_source=" + str(input_source_format) + ", input_format_target=" + str(input_target_format) + ", input_quality=" + str(input_target_quality) + ", input_overwrite=" + str(input_target_overwrite) + ", cwd_path=" + str(cwd_path))
 
+    # Find files that match input format
     file_names_in_cwd = os.listdir(cwd_path)
-    print(file_names_in_cwd)
-    file_names_matched_format_source_in_cwd = [f for f in file_names_in_cwd if f.lower().endswith("." + input_format_source)]
-    print(file_names_matched_format_source_in_cwd)
+    file_names_matched_source_format_in_cwd = [f for f in file_names_in_cwd if f.lower().endswith("." + input_source_format)]
 
-    if len(file_names_matched_format_source_in_cwd) > 0:
+    # If we actually have some files
+    if len(file_names_matched_source_format_in_cwd) > 0:
+        print(Fore.YELLOW + "INFO!" + Style.RESET_ALL + " Started conversion")
         # Convert files in parallel
         results = []
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=number_of_cpu)
-        for result in executor.map(convert_file, repeat(cwd_path), file_names_matched_format_source_in_cwd, repeat(input_format_source), repeat(input_format_target), repeat(input_quality), repeat(input_overwrite)):
+        for result in executor.map(convert_file, repeat(cwd_path), file_names_matched_source_format_in_cwd, repeat(input_source_format), repeat(input_target_format), repeat(input_target_quality), repeat(input_target_overwrite)):
             results.append(result)
-
-    # utils_image.open_image_pil()
+        print(Fore.YELLOW + "INFO!" + Style.RESET_ALL + " Finished conversion")
+    print(Fore.YELLOW + "INFO!" + Style.RESET_ALL + " Exiting...")
+    exit(0)
 
 
 if __name__ == "__main__":
