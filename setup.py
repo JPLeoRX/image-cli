@@ -10,7 +10,7 @@ setup_args = dict(
         'console_scripts': ['image-cli-convert=image_cli.command_line_convert:main'],
     },
     name='image-cli',
-    version='0.0.0.1',
+    version='0.0.0.2',
     description="",
     keywords=[],
     long_description=readme_text,
@@ -27,6 +27,7 @@ setup_args = dict(
 install_requires = [
     'argparse',
     'colorama',
+    'tekleo-common-utils'
 ]
 
 
